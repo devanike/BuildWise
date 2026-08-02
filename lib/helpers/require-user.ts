@@ -1,0 +1,16 @@
+import { redirect } from "next/navigation";
+import { toAccountProfile } from "@/lib/helpers/account-profile";
+import { createClient } from "@/lib/supabase/server";
+
+export async function requireUser() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  return toAccountProfile(user);
+}
