@@ -1,5 +1,5 @@
 import { Container } from "@/components/shared/container";
-import { FadeIn } from "@/components/shared/fade-in";
+import { FadeIn, Reveal, RevealItem } from "@/components/shared/fade-in";
 import {
   PlanStructureArt,
   ReasoningArt,
@@ -35,12 +35,14 @@ export function FeaturesSection() {
             const isReversed = index % 2 === 1;
 
             return (
-              <FadeIn
+              <Reveal
                 as="li"
                 key={feature.title}
                 className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16"
+                stagger={0.14}
               >
-                <div
+                <RevealItem
+                  direction={isReversed ? "left" : "right"}
                   className={cn(
                     "flex flex-col items-start",
                     isReversed && "lg:order-2",
@@ -53,12 +55,16 @@ export function FeaturesSection() {
                   <p className="mt-5 text-body text-muted-foreground md:text-body-lg">
                     {feature.description}
                   </p>
-                </div>
+                </RevealItem>
 
-                <div className={cn(isReversed && "lg:order-1")}>
+                <RevealItem
+                  direction={isReversed ? "right" : "left"}
+                  distance={30}
+                  className={cn(isReversed && "lg:order-1")}
+                >
                   <Art />
-                </div>
-              </FadeIn>
+                </RevealItem>
+              </Reveal>
             );
           })}
         </ul>

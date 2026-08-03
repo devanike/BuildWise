@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Container } from "@/components/shared/container";
-import { FadeIn } from "@/components/shared/fade-in";
+import { FadeIn, Reveal, RevealItem } from "@/components/shared/fade-in";
 import { Button } from "@/components/ui/button";
 
 export function CtaSection() {
@@ -37,28 +37,37 @@ export function CtaSection() {
               <rect width="100%" height="100%" fill="url(#cta-grid)" />
             </svg>
 
-            <div className="flex flex-col items-center">
-              <span className="text-body-xs font-semibold uppercase tracking-[0.16em] text-accent-text">
-                Get started
-              </span>
+            <Reveal className="flex flex-col items-center" stagger={0.1}>
+              <RevealItem distance={16}>
+                <span className="text-body-xs font-semibold uppercase tracking-[0.16em] text-accent-text">
+                  Get started
+                </span>
+              </RevealItem>
 
-              <h2 className="mt-5 max-w-2xl text-h4 font-bold text-foreground md:text-h2">
-                Start your first backend plan
-              </h2>
-              <p className="mt-5 max-w-xl text-body text-muted-foreground md:text-body-lg">
-                Create an account and turn your next project idea into a
-                structured plan you can understand and build from.
-              </p>
+              <RevealItem className="w-full">
+                <h2 className="mx-auto mt-5 max-w-2xl text-h4 font-bold text-foreground md:text-h2">
+                  Start your first backend plan
+                </h2>
+              </RevealItem>
 
-              <div className="mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-                <Button asChild size="lg">
-                  <Link href="/sign-up">Create Account</Link>
-                </Button>
-                <Button asChild variant="secondary" size="lg">
-                  <Link href="/sign-in">Sign In</Link>
-                </Button>
-              </div>
-            </div>
+              <RevealItem className="w-full">
+                <p className="mx-auto mt-5 max-w-xl text-body text-muted-foreground md:text-body-lg">
+                  Create an account and turn your next project idea into a
+                  structured plan you can understand and build from.
+                </p>
+              </RevealItem>
+
+              <RevealItem className="w-full">
+                <div className="mt-9 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
+                  <Button asChild size="lg">
+                    <Link href="/sign-up">Create Account</Link>
+                  </Button>
+                  <Button asChild variant="secondary" size="lg">
+                    <Link href="/sign-in">Sign In</Link>
+                  </Button>
+                </div>
+              </RevealItem>
+            </Reveal>
           </div>
         </FadeIn>
       </Container>
