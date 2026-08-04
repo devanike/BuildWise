@@ -2,7 +2,7 @@ export type PlanDraft = {
   projectName: string;
   projectDescription: string;
   targetUsers: string;
-  coreFeatures: string;
+  coreFeatures: string[];
   authRequirement: string;
   databasePreference: string;
   apiPreference: string;

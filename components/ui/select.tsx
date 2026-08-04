@@ -18,6 +18,7 @@ export function SelectTrigger({
       className={cn(
         "flex h-12 w-full items-center justify-between gap-3 rounded-input border border-border bg-surface px-4",
         "text-left text-body text-foreground",
+        "touch-manipulation",
         "transition-[border-color,background-color] duration-200",
         "hover:border-border-strong",
         "focus-visible:border-accent focus-visible:bg-surface-raised",
@@ -49,15 +50,17 @@ export function SelectContent({
       <SelectPrimitive.Content
         position="popper"
         sideOffset={6}
+        collisionPadding={12}
         className={cn(
-          "z-50 max-h-72 min-w-[--radix-select-trigger-width] overflow-hidden",
+          "z-50 min-w-[--radix-select-trigger-width] overflow-hidden",
+          "max-h-[min(18rem,var(--radix-select-content-available-height))]",
           "rounded-dropdown border border-border bg-surface-raised shadow-soft",
-          "data-[state=open]:animate-in data-[state=open]:fade-in-0",
+          "data-[state=open]:animate-dropdown-in",
           className,
         )}
         {...props}
       >
-        <SelectPrimitive.Viewport className="p-1.5">
+        <SelectPrimitive.Viewport className="overscroll-contain p-1.5">
           {children}
         </SelectPrimitive.Viewport>
       </SelectPrimitive.Content>

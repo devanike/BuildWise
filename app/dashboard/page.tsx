@@ -17,55 +17,53 @@ export default async function DashboardPage() {
 
   return (
     <DashboardShell profile={profile} title="Dashboard">
-      <div className="flex flex-col gap-8">
-        <section className="rounded-card border border-border bg-linear-to-b from-surface-raised to-surface p-8 md:p-10">
-          <h2 className="text-h4 font-bold text-foreground md:text-h3">
-            Welcome back, {toFirstName(profile.name)}.
-          </h2>
-          <p className="mt-3 max-w-2xl text-body text-muted-foreground md:text-body-lg">
-            What would you like to build today? Describe your project and
-            BuildWise AI will turn it into a structured backend plan you can
-            follow and understand.
-          </p>
+      {/* Fills the shell's content area so recent plans is the whole page,
+          rather than padding a card out to an arbitrary height. */}
+      <section
+        aria-labelledby="recent-plans-heading"
+        className="flex min-h-[calc(100dvh-10rem)] flex-col"
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-1.5">
+            <h2
+              id="recent-plans-heading"
+              className="text-h5 font-bold text-foreground md:text-h4"
+            >
+              Recent plans
+            </h2>
+            <p className="text-body text-muted-foreground">
+              Welcome back, {toFirstName(profile.name)}. Your plans live here so
+              you can return to them whenever you need.
+            </p>
+          </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="md">
               <Link href="/create-plan">
                 <PlusIcon aria-hidden="true" />
                 Create New Plan
               </Link>
             </Button>
-            <Button asChild variant="secondary" size="lg">
+            <Button asChild variant="secondary" size="md">
               <Link href="/generated-plan">
-                See an example plan
+                See an example
                 <ArrowRightIcon aria-hidden="true" />
               </Link>
             </Button>
           </div>
-        </section>
+        </div>
 
-        <section aria-labelledby="recent-plans-heading">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2
-              id="recent-plans-heading"
-              className="text-h6 font-bold text-foreground"
-            >
-              Recent plans
-            </h2>
-          </div>
-
-          <EmptyState
-            className="mt-5"
-            title="You haven't created any backend plans yet"
-            description="Create your first backend plan to get started. Your plans will appear here so you can return to them whenever you need."
-            action={
-              <Button asChild size="md">
-                <Link href="/create-plan">Create New Plan</Link>
-              </Button>
-            }
-          />
-        </section>
-      </div>
+        <EmptyState
+          className="mt-6 flex-1"
+          title="You haven't created any backend plans yet"
+          description="Create your first backend plan to get started. Describe what you are building and BuildWise AI will turn it into a structured plan you can follow and understand."
+          action={
+            <Button asChild size="md">
+              <Link href="/create-plan">Create New Plan</Link>
+            </Button>
+          }
+        />
+      </section>
     </DashboardShell>
   );
 }
