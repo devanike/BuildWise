@@ -8,8 +8,10 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FeatureListInput } from "@/components/plans/feature-list-input";
+import { PlanReader } from "@/components/plans/plan-reader";
 import { PlanSelectField } from "@/components/plans/plan-select-field";
 import { FormMessage } from "@/components/shared/form-message";
+import { LoadingState } from "@/components/shared/loading-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +23,8 @@ import {
   DEPLOYMENT_OPTIONS,
   NO_PREFERENCE,
 } from "@/lib/constants/plan-options";
+import { validateDraft } from "@/lib/helpers/validate-draft";
+import { usePlanGeneration } from "@/lib/hooks/use-plan-generation";
 import { cn } from "@/lib/utils/cn";
 import type { PlanDraft, PlanFieldErrors } from "@/types/plans";
 
@@ -30,13 +34,11 @@ const EMPTY_DRAFT: PlanDraft = {
   targetUsers: "",
   coreFeatures: [],
   authRequirement: "",
+  techStack: "",
   databasePreference: NO_PREFERENCE,
   apiPreference: NO_PREFERENCE,
   deploymentPreference: NO_PREFERENCE,
 };
-
-const MIN_DESCRIPTION = 30;
-const MIN_FEATURES = 2;
 
 type Step = {
   id: "project" | "features" | "technical";
@@ -72,48 +74,24 @@ const STEPS: readonly Step[] = [
   },
 ];
 
-function validate(draft: PlanDraft): PlanFieldErrors {
-  const errors: PlanFieldErrors = {};
-
-  if (!draft.projectName.trim()) {
-    errors.projectName = "Please give your project a name.";
-  }
-
-  if (!draft.projectDescription.trim()) {
-    errors.projectDescription = "Please describe what you are building.";
-  } else if (draft.projectDescription.trim().length < MIN_DESCRIPTION) {
-    errors.projectDescription = `A little more detail helps. Aim for at least ${MIN_DESCRIPTION} characters.`;
-  }
-
-  if (!draft.targetUsers.trim()) {
-    errors.targetUsers = "Please say who this application is for.";
-  }
-
-  if (draft.coreFeatures.length < MIN_FEATURES) {
-    errors.coreFeatures = `Add at least ${MIN_FEATURES} features so your plan has something to work from.`;
-  }
-
-  if (!draft.authRequirement) {
-    errors.authRequirement = "Please choose how people will sign in.";
-  }
-
-  return errors;
-}
-
 export function CreatePlanForm() {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
   const [draft, setDraft] = useState<PlanDraft>(EMPTY_DRAFT);
   const [errors, setErrors] = useState<PlanFieldErrors>({});
-  const [isGenerating, setIsGenerating] = useState(false);
+  const generation = usePlanGeneration();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const isFirstRender = useRef(true);
+  const isGenerating = generation.isGenerating;
 
   const step = STEPS[stepIndex];
   const isLastStep = stepIndex === STEPS.length - 1;
 
-  // Move focus to the new step heading so keyboard and screen reader users land
-  // on the new content instead of staying on the button they just pressed.
+  const savedId = generation.savedId;
+  useEffect(() => {
+    if (savedId) router.replace(`/plans/${savedId}`);
+  }, [savedId, router]);
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -134,9 +112,8 @@ export function CreatePlanForm() {
     }
   }
 
-  /** Validates only the fields belonging to the current step. */
   function checkStep(): boolean {
-    const all = validate(draft);
+    const all = validateDraft(draft);
     const stepErrors: PlanFieldErrors = {};
 
     for (const field of step.fields) {
@@ -165,8 +142,7 @@ export function CreatePlanForm() {
       return;
     }
 
-    // Guard against an earlier step having been left incomplete.
-    const all = validate(draft);
+    const all = validateDraft(draft);
     if (Object.keys(all).length > 0) {
       setErrors(all);
       const firstBadStep = STEPS.findIndex((candidate) =>
@@ -176,11 +152,46 @@ export function CreatePlanForm() {
       return;
     }
 
-    setIsGenerating(true);
-    router.push("/generated-plan");
+    void generation.generate(draft);
   }
 
   const errorCount = Object.keys(errors).length;
+
+  if (generation.status === "generating") {
+    return <LoadingState message={generation.message} />;
+  }
+
+  if (generation.status === "done" && generation.plan) {
+    if (generation.savedId) {
+      return <LoadingState message="Opening your plan" />;
+    }
+
+    return (
+      <div className="flex flex-col gap-6">
+        <FormMessage tone="error">
+          Your plan was generated but could not be saved, so it will not appear
+          in your recent plans. Copy anything you need before leaving this page.
+        </FormMessage>
+
+        <PlanReader plan={generation.plan} />
+
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button
+            type="button"
+            variant="secondary"
+            size="lg"
+            onClick={() => {
+              generation.reset();
+              setStepIndex(0);
+            }}
+          >
+            <ArrowLeftIcon aria-hidden="true" />
+            Edit your inputs
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-8">
@@ -202,6 +213,10 @@ export function CreatePlanForm() {
             {step.description}
           </p>
         </div>
+
+        {generation.status === "error" ? (
+          <FormMessage tone="error">{generation.error}</FormMessage>
+        ) : null}
 
         {errorCount > 0 ? (
           <FormMessage tone="error">
@@ -315,6 +330,21 @@ export function CreatePlanForm() {
                 describedBy={
                   errors.authRequirement ? "authRequirement-error" : undefined
                 }
+              />
+            </Field>
+
+            <Field
+              id="techStack"
+              label="What are you building it with?"
+              hint="If you already know your framework or language, the plan will follow its conventions instead of guessing."
+            >
+              <Input
+                id="techStack"
+                name="techStack"
+                value={draft.techStack}
+                onChange={(event) => update("techStack", event.target.value)}
+                placeholder="Next.js, Django, Rails, or leave blank"
+                aria-describedby="techStack-hint"
               />
             </Field>
 

@@ -5,13 +5,14 @@ import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import {
   Considerations,
+  LearningTip,
   Reasoning,
   Recommendation,
 } from "@/components/plans/plan-section";
-import { EXAMPLE_PLAN } from "@/lib/constants/example-plan";
 import { cn } from "@/lib/utils/cn";
+import type { GeneratedPlan } from "@/types/plans";
 
-type Plan = typeof EXAMPLE_PLAN;
+type Plan = GeneratedPlan;
 
 type Section = {
   id: string;
@@ -195,6 +196,7 @@ function buildSections(plan: Plan): Section[] {
           <Recommendation>{plan.architecture.recommendation}</Recommendation>
           <Reasoning>{plan.architecture.reasoning}</Reasoning>
           <Considerations items={plan.architecture.considerations} />
+          <LearningTip>{plan.architecture.learningTip}</LearningTip>
         </>
       ),
     },
@@ -208,6 +210,7 @@ function buildSections(plan: Plan): Section[] {
           <Recommendation>{plan.authentication.recommendation}</Recommendation>
           <Reasoning>{plan.authentication.reasoning}</Reasoning>
           <Considerations items={plan.authentication.considerations} />
+          <LearningTip>{plan.authentication.learningTip}</LearningTip>
         </>
       ),
     },
@@ -221,6 +224,7 @@ function buildSections(plan: Plan): Section[] {
           <Recommendation>{plan.database.recommendation}</Recommendation>
           <Reasoning>{plan.database.reasoning}</Reasoning>
           <Considerations items={plan.database.considerations} />
+          <LearningTip>{plan.database.learningTip}</LearningTip>
         </>
       ),
     },
@@ -272,6 +276,8 @@ function buildSections(plan: Plan): Section[] {
               </tbody>
             </table>
           </div>
+
+          <LearningTip>{plan.api.learningTip}</LearningTip>
         </>
       ),
     },
@@ -308,6 +314,7 @@ function buildSections(plan: Plan): Section[] {
           <Recommendation>{plan.deployment.recommendation}</Recommendation>
           <Reasoning>{plan.deployment.reasoning}</Reasoning>
           <Considerations items={plan.deployment.considerations} />
+          <LearningTip>{plan.deployment.learningTip}</LearningTip>
         </>
       ),
     },

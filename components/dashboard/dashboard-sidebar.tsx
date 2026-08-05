@@ -51,7 +51,7 @@ export function DashboardSidebar({
       ) : null}
       <div
         className={cn(
-          "flex h-16 items-center",
+          "flex h-16 items-center border-b border-border",
           collapsed ? "justify-center px-3" : "justify-between px-5",
         )}
       >
@@ -70,7 +70,7 @@ export function DashboardSidebar({
 
       <nav
         aria-label="Dashboard"
-        className={cn("flex-1", collapsed ? "px-3" : "px-4")}
+        className={cn("flex-1 pt-5", collapsed ? "px-3" : "px-4")}
       >
         <ul className="flex flex-col gap-1">
           {DASHBOARD_NAV_ITEMS.map((item) => {

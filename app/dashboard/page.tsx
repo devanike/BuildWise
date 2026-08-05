@@ -2,10 +2,12 @@ import { ArrowRightIcon, PlusIcon } from "@heroicons/react/24/outline";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { PlanList } from "@/components/dashboard/plan-list";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/helpers/require-user";
 import { toFirstName } from "@/lib/helpers/account-profile";
+import { listPlans } from "@/lib/services/plans";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -14,6 +16,7 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const profile = await requireUser();
+  const plans = await listPlans();
 
   return (
     <DashboardShell profile={profile} title="Dashboard">
@@ -38,13 +41,13 @@ export default async function DashboardPage() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="md">
+            <Button asChild size="sm">
               <Link href="/create-plan">
                 <PlusIcon aria-hidden="true" />
                 Create New Plan
               </Link>
             </Button>
-            <Button asChild variant="secondary" size="md">
+            <Button asChild variant="secondary" size="sm">
               <Link href="/generated-plan">
                 See an example
                 <ArrowRightIcon aria-hidden="true" />
@@ -53,16 +56,22 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <EmptyState
-          className="mt-6 flex-1"
-          title="You haven't created any backend plans yet"
-          description="Create your first backend plan to get started. Describe what you are building and BuildWise AI will turn it into a structured plan you can follow and understand."
-          action={
-            <Button asChild size="md">
-              <Link href="/create-plan">Create New Plan</Link>
-            </Button>
-          }
-        />
+        {plans.length > 0 ? (
+          <div className="mt-6">
+            <PlanList plans={plans} />
+          </div>
+        ) : (
+          <EmptyState
+            className="mt-6 flex-1"
+            title="You haven't created any backend plans yet"
+            description="Create your first backend plan to get started. Describe what you are building and BuildWise AI will turn it into a structured plan you can follow and understand."
+            action={
+              <Button asChild size="sm">
+                <Link href="/create-plan">Create New Plan</Link>
+              </Button>
+            }
+          />
+        )}
       </section>
     </DashboardShell>
   );

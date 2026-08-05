@@ -1,3 +1,5 @@
+import type { GeneratedPlan } from "@/types/plans";
+
 export const EXAMPLE_PLAN = {
   project: {
     name: "Study Planner",
@@ -26,6 +28,8 @@ export const EXAMPLE_PLAN = {
       "You can split a service out later if one part genuinely needs to scale on its own.",
       "Keep clear boundaries inside the code, so a future split is possible without a rewrite.",
     ],
+    learningTip:
+      "How a modular monolith keeps boundaries inside one service, so a future split does not become a rewrite.",
   },
 
   authentication: {
@@ -37,6 +41,8 @@ export const EXAMPLE_PLAN = {
       "Store sessions in secure, http-only cookies rather than in browser storage.",
       "Never store passwords directly. A managed auth provider handles hashing for you.",
     ],
+    learningTip:
+      "The difference between a session and a token, and why one is stored in a cookie.",
   },
 
   database: {
@@ -48,6 +54,8 @@ export const EXAMPLE_PLAN = {
       "Add indexes on the columns you filter by most, such as user and due date.",
       "A document database would suit loosely structured data better, but not this shape.",
     ],
+    learningTip:
+      "Database normalisation: how to decide what belongs in its own table.",
   },
 
   api: {
@@ -62,6 +70,8 @@ export const EXAMPLE_PLAN = {
       { method: "DELETE", path: "/api/plans/:id", purpose: "Delete a plan" },
       { method: "POST", path: "/api/plans/:id/tasks", purpose: "Add a task to a plan" },
     ],
+    learningTip:
+      "What each HTTP method promises, and why GET must never change data",
   },
 
   folders: [
@@ -83,6 +93,8 @@ export const EXAMPLE_PLAN = {
       "Use a separate database for development and production.",
       "Set up automatic backups before real users arrive.",
     ],
+    learningTip:
+      "What a build step actually does, and why environment variables are read at different moments.",
   },
 
   resources: [
@@ -126,4 +138,4 @@ export const EXAMPLE_PLAN = {
       detail: "Wire your pages to the API and handle loading and error states.",
     },
   ],
-} as const;
+} as const satisfies GeneratedPlan;

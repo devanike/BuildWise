@@ -1,4 +1,4 @@
-import { LightBulbIcon } from "@heroicons/react/24/outline";
+import { AcademicCapIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils/cn";
 
 export function PlanSection({
@@ -53,6 +53,21 @@ export function Reasoning({ children }: { children: React.ReactNode }) {
         Why this was recommended
       </h3>
       <p className="mt-2 text-body text-muted-foreground">{children}</p>
+    </div>
+  );
+}
+
+export function LearningTip({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-5 flex gap-3 rounded-input border border-border bg-background/50 px-4 py-3.5">
+      <AcademicCapIcon
+        aria-hidden="true"
+        className="mt-0.5 size-4 shrink-0 text-accent-text"
+      />
+      <p className="text-body-sm text-muted-foreground">
+        <span className="font-semibold text-foreground">Worth learning: </span>
+        {children}
+      </p>
     </div>
   );
 }
