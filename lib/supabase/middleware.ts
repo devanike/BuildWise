@@ -7,6 +7,8 @@ const PROTECTED_ROUTES = [
   "/create-plan",
   "/generated-plan",
   "/plans",
+  "/saved-plans",
+  "/settings",
 ];
 const AUTH_ROUTES = ["/sign-in", "/sign-up", "/forgot-password"];
 

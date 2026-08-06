@@ -70,7 +70,7 @@ export function DashboardSidebar({
 
       <nav
         aria-label="Dashboard"
-        className={cn("flex-1 pt-5", collapsed ? "px-3" : "px-4")}
+        className={cn("flex-1 pt-8 md:pt-10", collapsed ? "px-3" : "px-2")}
       >
         <ul className="flex flex-col gap-1">
           {DASHBOARD_NAV_ITEMS.map((item) => {
@@ -136,7 +136,9 @@ export function DashboardSidebar({
         </ul>
       </nav>
 
-      <div className={cn("border-t border-border", collapsed ? "p-3" : "p-4")}>
+      <div
+        className={cn("border-t border-border", collapsed ? "p-3" : "px-5 py-4")}
+      >
         {collapsed ? (
           <div className="flex flex-col items-center gap-3">
             <span
@@ -149,7 +151,7 @@ export function DashboardSidebar({
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-3 px-2 pb-3">
+            <div className="flex items-center gap-3 pb-3">
               <span
                 aria-hidden="true"
                 className="flex size-9 shrink-0 items-center justify-center rounded-badge bg-accent-soft text-body-sm font-semibold text-accent-text"

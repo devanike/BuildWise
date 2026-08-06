@@ -4,9 +4,7 @@ export const GEMINI_MODEL = "gemini-flash-lite-latest";
 export const GEMINI_THINKING_ENABLED = false;
 
 const THINKING_OFF_BUDGET = 512;
-
 const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta";
-
 const MAX_ATTEMPTS = 3;
 
 export type GeminiErrorKind =

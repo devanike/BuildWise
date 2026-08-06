@@ -21,7 +21,7 @@ export const QUESTION_RESPONSE_SCHEMA = {
     relatedSection: {
       type: "string",
       description:
-        "Which part of the plan this answer concerns, so the reader can be taken back to it. Use 'general' only when the question is genuinely about the plan as a whole.",
+        "Which part of the plan this answer concerns, so the reader can be taken back to it. Choose by the subject of the answer, not by which section the answer happens to mention: a question about who is allowed to do something belongs to 'authentication' even when the answer talks about middleware or code structure, and a question about how records relate belongs to 'database' even when the answer names an endpoint. 'architecture' is only for questions about the overall shape of the application, such as whether it is one service or several. Use 'general' only when the question is genuinely about the plan as a whole.",
       enum: PLAN_SECTION_IDS,
     },
     suggestedFollowUps: {

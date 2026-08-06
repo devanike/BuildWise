@@ -68,13 +68,16 @@ export async function getPlan(id: string): Promise<SavedPlan | null> {
   };
 }
 
-export async function listPlans(): Promise<PlanSummary[]> {
+const MAX_PLANS = 100;
+
+export async function listPlans(limit = MAX_PLANS): Promise<PlanSummary[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("plans")
     .select("id, title, created_at")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(Math.min(limit, MAX_PLANS));
 
   if (error || !data) return [];
 

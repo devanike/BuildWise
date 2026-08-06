@@ -22,12 +22,12 @@ export const DASHBOARD_NAV_ITEMS = [
     label: "Saved Plans",
     href: "/saved-plans",
     icon: BookmarkIcon,
-    available: false,
+    available: true,
   },
   {
     label: "Settings",
     href: "/settings",
     icon: Cog6ToothIcon,
-    available: false,
+    available: true,
   },
 ] as const;

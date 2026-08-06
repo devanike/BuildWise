@@ -142,9 +142,21 @@ export function PlanReader({ plan }: { plan: Plan }) {
               </AccordionPrimitive.Content>
             </AccordionPrimitive.Item>
           ))}
+
+          <PlanDisclaimer />
         </AccordionPrimitive.Root>
       </div>
     </div>
+  );
+}
+
+function PlanDisclaimer() {
+  return (
+    <p className="rounded-card border border-dashed border-border px-6 py-5 text-body-sm text-subtle-foreground">
+      These recommendations are a starting point, not a verdict. Read the
+      reasoning behind each one, check anything that surprises you, and change
+      what does not fit your project.
+    </p>
   );
 }
 
