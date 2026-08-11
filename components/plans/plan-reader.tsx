@@ -3,6 +3,7 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { PathRail } from "@/components/plans/path-rail";
 import {
   Considerations,
   LearningTip,
@@ -10,9 +11,7 @@ import {
   Recommendation,
 } from "@/components/plans/plan-section";
 import { cn } from "@/lib/utils/cn";
-import type { GeneratedPlan } from "@/types/plans";
-
-type Plan = GeneratedPlan;
+import type { GeneratedPlan, PlanPath } from "@/types/plans";
 
 type Section = {
   id: string;
@@ -24,8 +23,22 @@ type Section = {
 
 const INITIAL_OPEN = ["architecture"];
 
-export function PlanReader({ plan }: { plan: Plan }) {
-  const sections = buildSections(plan);
+export function PlanReader({
+  plan,
+  path,
+  active,
+  onPathChange,
+  panelId,
+  labelledBy,
+}: {
+  plan: GeneratedPlan;
+  path: PlanPath;
+  active: number;
+  onPathChange: (index: number) => void;
+  panelId?: string;
+  labelledBy?: string;
+}) {
+  const sections = buildSections(path);
   const [open, setOpen] = useState<string[]>(INITIAL_OPEN);
 
   const allOpen = open.length === sections.length;
@@ -41,14 +54,35 @@ export function PlanReader({ plan }: { plan: Plan }) {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <PlanSummary plan={plan} />
+    <div
+      id={panelId}
+      role={panelId ? "tabpanel" : undefined}
+      aria-labelledby={labelledBy}
+      className="flex flex-col gap-8"
+    >
+      <PlanSummary
+        project={plan.project}
+        overview={path.overview}
+        pathName={plan.paths.length > 1 ? path.name : undefined}
+        bestWhen={plan.paths.length > 1 ? path.bestWhen : undefined}
+        reason={plan.paths.length > 1 ? plan.recommendationReason : undefined}
+      />
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-10">
         <nav
           aria-label="Plan contents"
           className="lg:sticky lg:top-24 lg:self-start"
         >
+          {plan.paths.length > 1 && panelId ? (
+            <PathRail
+              paths={plan.paths}
+              active={active}
+              recommended={plan.recommendedPath}
+              onChange={onPathChange}
+              panelId={panelId}
+            />
+          ) : null}
+
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-body-xs font-semibold uppercase tracking-[0.16em] text-subtle-foreground">
               Contents
@@ -160,27 +194,39 @@ function PlanDisclaimer() {
   );
 }
 
-function PlanSummary({ plan }: { plan: Plan }) {
+function PlanSummary({
+  project,
+  overview,
+  pathName,
+  bestWhen,
+  reason,
+}: {
+  project: GeneratedPlan["project"];
+  overview: PlanPath["overview"];
+  pathName?: string;
+  bestWhen?: string;
+  reason?: string;
+}) {
   return (
     <section
       aria-labelledby="overview-heading"
       className="rounded-card border border-border bg-linear-to-b from-surface-raised to-surface p-6 md:p-8"
     >
       <span className="text-body-xs font-semibold uppercase tracking-[0.16em] text-accent-text">
-        At a glance
+        {pathName ?? "At a glance"}
       </span>
       <h2
         id="overview-heading"
         className="mt-3 text-h4 font-bold text-foreground md:text-h3"
       >
-        {plan.project.name}
+        {project.name}
       </h2>
       <p className="mt-4 max-w-2xl text-body text-muted-foreground md:text-body-lg">
-        {plan.project.summary}
+        {project.summary}
       </p>
 
       <dl className="mt-8 grid gap-4 sm:grid-cols-2">
-        {plan.overview.map((item) => (
+        {overview.map((item) => (
           <div
             key={item.label}
             className="rounded-input border border-border bg-background/50 px-4 py-3"
@@ -192,11 +238,32 @@ function PlanSummary({ plan }: { plan: Plan }) {
           </div>
         ))}
       </dl>
+
+      {bestWhen || reason ? (
+        <div className="mt-6 flex flex-col gap-2 border-t border-border pt-5">
+          {bestWhen ? (
+            <p className="text-body-sm text-muted-foreground">
+              <span className="font-medium text-foreground">
+                This approach suits you if:{" "}
+              </span>
+              {bestWhen}
+            </p>
+          ) : null}
+          {reason ? (
+            <p className="text-body-sm text-muted-foreground">
+              <span className="font-medium text-foreground">
+                Which would I pick?{" "}
+              </span>
+              {reason}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }
 
-function buildSections(plan: Plan): Section[] {
+function buildSections(plan: PlanPath): Section[] {
   return [
     {
       id: "architecture",

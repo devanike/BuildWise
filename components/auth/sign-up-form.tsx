@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeftIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
+import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { AuthDivider } from "@/components/auth/auth-divider";
@@ -132,15 +132,6 @@ export function SignUpForm() {
           <SubmitButton pendingLabel="Creating your account...">
             Create Account
           </SubmitButton>
-
-          <button
-            type="button"
-            onClick={() => setStep("email")}
-            className="inline-flex items-center gap-2 self-start text-body-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
-          >
-            <ArrowLeftIcon aria-hidden="true" className="size-4" />
-            Back
-          </button>
         </form>
       )}
     </div>

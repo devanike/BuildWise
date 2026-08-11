@@ -3,7 +3,6 @@ import { getPlan } from "@/lib/services/plans";
 import { askQuestion } from "@/lib/services/questions";
 import { createClient } from "@/lib/supabase/server";
 
-/** An answer is short, but still a model call. Comfortably above the default. */
 export const maxDuration = 60;
 
 export async function POST(
@@ -24,9 +23,6 @@ export async function POST(
 
   const { id } = await params;
 
-  // Loaded here rather than trusted from the request. Row Level Security means
-  // a plan belonging to someone else simply is not found, so this doubles as
-  // the ownership check.
   const saved = await getPlan(id);
 
   if (!saved) {
@@ -36,7 +32,15 @@ export async function POST(
   const body = await request.json().catch(() => null);
   const question = typeof body?.question === "string" ? body.question : "";
 
-  const result = await askQuestion(id, question, saved.plan);
+  const requested = Number(body?.pathIndex);
+  const pathIndex =
+    Number.isInteger(requested) &&
+    requested >= 0 &&
+    requested < saved.plan.paths.length
+      ? requested
+      : saved.plan.recommendedPath;
+
+  const result = await askQuestion(id, question, saved.plan, pathIndex);
 
   if (!result.ok) {
     return NextResponse.json({ error: result.message }, { status: 400 });

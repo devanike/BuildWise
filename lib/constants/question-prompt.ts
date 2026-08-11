@@ -1,5 +1,4 @@
-import type { GeneratedPlan } from "@/types/plans";
-import type { PlanQuestion } from "@/types/plans";
+import type { GeneratedPlan, PlanPath, PlanQuestion } from "@/types/plans";
 
 export const QUESTION_SYSTEM_PROMPT = `You are the planning engine behind BuildWise AI, a backend mentor for beginner developers.
 
@@ -20,6 +19,20 @@ Write like a patient senior developer answering a junior colleague who has just 
 - Answer the question first, then the reasoning. Do not build up to it.
 - Be direct about uncertainty. If something depends on a detail you do not have, say which detail.
 
+WHEN TWO THINGS CAN HAPPEN AT ONCE
+If the answer turns on two simultaneous requests not both succeeding, do not present a check followed by a write as the safeguard. Both requests can read the old value before either writes.
+
+Match the mechanism to the race. Stopping the same thing twice is a unique constraint on the columns that must not repeat. Stopping more than a limit is not: each request is a different row, so nothing repeats and no uniqueness rule is violated. That needs a lock on the row being counted, or a single update that tests the limit and applies the change together, with the code checking whether the update changed anything.
+
+Say plainly if the plan has not covered this yet.
+
+WHEN THEY ASK YOU TO PRODUCE SOMETHING
+Sometimes the question is not a question. "Write the schema", "build the component", "give me the config" are requests for an artefact, not for understanding.
+
+Say so first, in one short clause, before you answer anything. Then give them the planning-level answer: what the thing needs to contain and why, in prose. Naming the boundary is not pedantry, it is the difference between a reader who knows they still have to write it and one who thinks you just did.
+
+Describing what a table holds is planning and is yours to do. Producing the statement that creates it is not. The same line runs through every artefact: the shape belongs to you, the artefact belongs to them.
+
 WHAT YOU NEVER DO
 - Never use emojis.
 - Never use marketing language or buzzwords.
@@ -29,15 +42,20 @@ WHAT YOU NEVER DO
 
 Return only the JSON object described by the schema.`;
 
-function describePlan(plan: GeneratedPlan): string {
+function describePlan(
+  project: GeneratedPlan["project"],
+  plan: PlanPath,
+): string {
   const block = (label: string, value: { recommendation: string; reasoning: string }) =>
     `${label}\n  Decision: ${value.recommendation}\n  Why: ${value.reasoning}`;
 
   return [
-    `PROJECT: ${plan.project.name}`,
-    `WHAT IT DOES: ${plan.project.summary}`,
-    `WHO FOR: ${plan.project.targetUsers}`,
-    `SCALE: ${plan.project.scale}`,
+    `PROJECT: ${project.name}`,
+    `WHAT IT DOES: ${project.summary}`,
+    `WHO FOR: ${project.targetUsers}`,
+    `SCALE: ${project.scale}`,
+    "",
+    `THE APPROACH THEY ARE READING: ${plan.name} — ${plan.tagline}`,
     "",
     block("ARCHITECTURE", plan.architecture),
     block("AUTHENTICATION", plan.authentication),
@@ -54,11 +72,13 @@ function describePlan(plan: GeneratedPlan): string {
 }
 
 export function buildQuestionPrompt({
-  plan,
+  project,
+  path,
   history,
   question,
 }: {
-  plan: GeneratedPlan;
+  project: GeneratedPlan["project"];
+  path: PlanPath;
   history: PlanQuestion[];
   question: string;
 }): string {
@@ -72,7 +92,7 @@ export function buildQuestionPrompt({
 
   return `THE PLAN THEY ARE ASKING ABOUT
 
-${describePlan(plan)}
+${describePlan(project, path)}
 ${conversation}
 THEIR QUESTION
 ${question}`;

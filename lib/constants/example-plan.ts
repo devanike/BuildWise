@@ -9,6 +9,13 @@ export const EXAMPLE_PLAN = {
     scale: "Small to medium, growing over a single academic year",
   },
 
+  paths: [
+    {
+      name: "Recommended approach",
+      tagline: "A worked example, written by hand",
+      bestWhen:
+        "You want to see the shape of a finished plan before making your own.",
+
   overview: [
     {
       label: "Shape",
@@ -138,4 +145,10 @@ export const EXAMPLE_PLAN = {
       detail: "Wire your pages to the API and handle loading and error states.",
     },
   ],
+    },
+  ],
+
+  recommendedPath: 0,
+  recommendationReason:
+    "This example shows a single approach so you can see how a plan reads. A plan you generate yourself will offer two, with a recommendation and the reasoning behind it.",
 } as const satisfies GeneratedPlan;

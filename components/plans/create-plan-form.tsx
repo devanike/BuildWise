@@ -8,7 +8,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FeatureListInput } from "@/components/plans/feature-list-input";
-import { PlanReader } from "@/components/plans/plan-reader";
+import { PlanView } from "@/components/plans/plan-view";
 import { PlanSelectField } from "@/components/plans/plan-select-field";
 import { FormMessage } from "@/components/shared/form-message";
 import { LoadingState } from "@/components/shared/loading-state";
@@ -173,7 +173,7 @@ export function CreatePlanForm() {
           in your recent plans. Copy anything you need before leaving this page.
         </FormMessage>
 
-        <PlanReader plan={generation.plan} />
+        <PlanView plan={generation.plan} />
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button
@@ -194,7 +194,11 @@ export function CreatePlanForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-8">
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      className="flex max-w-3xl flex-col gap-8"
+    >
       <StepIndicator current={stepIndex} />
 
       <div className="flex flex-col gap-6">

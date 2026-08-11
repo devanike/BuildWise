@@ -3,8 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { PlanQuestions } from "@/components/plans/plan-questions";
-import { PlanReader } from "@/components/plans/plan-reader";
+import { PlanView } from "@/components/plans/plan-view";
 import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/helpers/require-user";
 import { getPlan } from "@/lib/services/plans";
@@ -42,9 +41,11 @@ export default async function PlanPage({ params }: Props) {
           Back to your plans
         </Link>
 
-        <PlanReader plan={saved.plan} />
-
-        <PlanQuestions planId={saved.id} initialQuestions={questions} />
+        <PlanView
+          plan={saved.plan}
+          planId={saved.id}
+          initialQuestions={questions}
+        />
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button asChild size="sm">

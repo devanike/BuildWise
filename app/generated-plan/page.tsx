@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { PlanReader } from "@/components/plans/plan-reader";
+import { PlanView } from "@/components/plans/plan-view";
 import { Button } from "@/components/ui/button";
 import { EXAMPLE_PLAN } from "@/lib/constants/example-plan";
 import { requireUser } from "@/lib/helpers/require-user";
@@ -27,7 +27,7 @@ export default async function GeneratedPlanPage() {
           Edit your inputs
         </Link>
 
-        <PlanReader plan={EXAMPLE_PLAN} />
+        <PlanView plan={EXAMPLE_PLAN} />
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button asChild size="lg">

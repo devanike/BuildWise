@@ -33,28 +33,24 @@ const recommendationBlock = (subject: string) => ({
   ],
 });
 
-export const PLAN_RESPONSE_SCHEMA = {
-  type: "object",
-  properties: {
-    project: {
-      type: "object",
-      properties: {
-        name: { type: "string", description: "The project name, as given." },
-        summary: {
-          type: "string",
-          description: "One sentence describing what the project does.",
-        },
-        targetUsers: { type: "string" },
-        scale: {
-          type: "string",
-          description: "A short phrase describing expected scale.",
-        },
-      },
-      required: ["name", "summary", "targetUsers", "scale"],
-      propertyOrdering: ["name", "summary", "targetUsers", "scale"],
-    },
+const pathProperties = {
+  name: {
+    type: "string",
+    description:
+      "What this way of building it is called, as a short noun phrase a beginner can choose between, such as 'The simple path' or 'The scalable path'. Name it after the trade-off it makes, never 'Option A' or 'Plan 1'.",
+  },
+  tagline: {
+    type: "string",
+    description:
+      "One short line, under twelve words, naming what this path optimises for and what it costs. For example 'Fewest moving parts, less room to grow'.",
+  },
+  bestWhen: {
+    type: "string",
+    description:
+      "One sentence describing the reader this path suits, in terms of their situation rather than their preferences. Something they can check about themselves, such as how soon they need it working or whether they expect to grow quickly.",
+  },
 
-    overview: {
+  overview: {
       type: "array",
       description:
         "Exactly four label/value pairs for the at-a-glance card: Shape, Data, Accounts, Delivery. Values are short phrases, not sentences.",
@@ -158,44 +154,87 @@ export const PLAN_RESPONSE_SCHEMA = {
       },
     },
 
-    nextSteps: {
+  nextSteps: {
+    type: "array",
+    description: "Three to five steps in the order worth doing them.",
+    items: {
+      type: "object",
+      properties: {
+        title: { type: "string" },
+        detail: { type: "string", description: "One sentence of guidance." },
+      },
+      required: ["title", "detail"],
+      propertyOrdering: ["title", "detail"],
+    },
+  },
+} as const;
+
+const PATH_FIELDS = [
+  "name",
+  "tagline",
+  "bestWhen",
+  "overview",
+  "architecture",
+  "authentication",
+  "database",
+  "api",
+  "folders",
+  "deployment",
+  "resources",
+  "nextSteps",
+] as const;
+
+export const PLAN_RESPONSE_SCHEMA = {
+  type: "object",
+  properties: {
+    project: {
+      type: "object",
+      properties: {
+        name: { type: "string", description: "The project name, as given." },
+        summary: {
+          type: "string",
+          description: "One sentence describing what the project does.",
+        },
+        targetUsers: { type: "string" },
+        scale: {
+          type: "string",
+          description: "A short phrase describing expected scale.",
+        },
+      },
+      required: ["name", "summary", "targetUsers", "scale"],
+      propertyOrdering: ["name", "summary", "targetUsers", "scale"],
+    },
+
+    paths: {
       type: "array",
-      description: "Three to five steps in the order worth doing them.",
+      description:
+        "Exactly two complete, internally consistent ways to build this project. Each must stand on its own: every section within a path must agree with that path's own decisions, and a reader following one path must never need anything from the other. They must differ in a way that matters for this specific project, not in cosmetic choices, and neither may be a straw man.",
       items: {
         type: "object",
-        properties: {
-          title: { type: "string" },
-          detail: { type: "string", description: "One sentence of guidance." },
-        },
-        required: ["title", "detail"],
-        propertyOrdering: ["title", "detail"],
+        properties: pathProperties,
+        required: PATH_FIELDS,
+        propertyOrdering: PATH_FIELDS,
       },
+    },
+
+    recommendedPath: {
+      type: "integer",
+      description:
+        "Which path you would start with: 0 for the first, 1 for the second. You must choose one. Presenting two options without an opinion leaves a beginner exactly where they started.",
+    },
+
+    recommendationReason: {
+      type: "string",
+      description:
+        "Two or three sentences explaining why you would start with that path for this project, and what would have to be true for the other to be the better call. Where one path is easier to move away from later than the other, say so, because reversibility matters more than being right first time.",
     },
   },
 
-  required: [
-    "project",
-    "overview",
-    "architecture",
-    "authentication",
-    "database",
-    "api",
-    "folders",
-    "deployment",
-    "resources",
-    "nextSteps",
-  ],
-
+  required: ["project", "paths", "recommendedPath", "recommendationReason"],
   propertyOrdering: [
     "project",
-    "overview",
-    "architecture",
-    "authentication",
-    "database",
-    "api",
-    "folders",
-    "deployment",
-    "resources",
-    "nextSteps",
+    "paths",
+    "recommendedPath",
+    "recommendationReason",
   ],
 } as const;

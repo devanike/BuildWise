@@ -10,11 +10,15 @@ import type { GeneratedPlan, PlanQuestion } from "@/types/plans";
 
 const MAX_QUESTION_LENGTH = 400;
 
+const COLUMNS =
+  "id, question, answer, related_section, path_index, suggested_follow_ups, created_at";
+
 type QuestionRow = {
   id: string;
   question: string;
   answer: string;
   related_section: string | null;
+  path_index: number | null;
   suggested_follow_ups: unknown;
   created_at: string;
 };
@@ -25,6 +29,7 @@ function toQuestion(row: QuestionRow): PlanQuestion {
     question: row.question,
     answer: row.answer,
     relatedSection: row.related_section,
+    pathIndex: row.path_index,
     suggestedFollowUps: Array.isArray(row.suggested_follow_ups)
       ? (row.suggested_follow_ups as string[]).filter(
           (item) => typeof item === "string",
@@ -39,7 +44,7 @@ export async function listQuestions(planId: string): Promise<PlanQuestion[]> {
 
   const { data, error } = await supabase
     .from("plan_questions")
-    .select("id, question, answer, related_section, suggested_follow_ups, created_at")
+    .select(COLUMNS)
     .eq("plan_id", planId)
     .order("created_at", { ascending: true })
     .returns<QuestionRow[]>();
@@ -57,6 +62,7 @@ export async function askQuestion(
   planId: string,
   rawQuestion: string,
   plan: GeneratedPlan,
+  pathIndex: number,
 ): Promise<AskResult> {
   const question = rawQuestion.trim().slice(0, MAX_QUESTION_LENGTH);
 
@@ -73,7 +79,15 @@ export async function askQuestion(
     return { ok: false, message: "Please sign in to continue." };
   }
 
-  const history = await listQuestions(planId);
+  const path = plan.paths[pathIndex] ?? plan.paths[0];
+
+  if (!path) {
+    return { ok: false, message: "We couldn't find that plan. Please try again." };
+  }
+
+  const history = (await listQuestions(planId)).filter(
+    (entry) => (entry.pathIndex ?? 0) === pathIndex,
+  );
 
   let answer: {
     answer?: unknown;
@@ -84,7 +98,12 @@ export async function askQuestion(
   try {
     answer = await generateJson({
       systemPrompt: QUESTION_SYSTEM_PROMPT,
-      userPrompt: buildQuestionPrompt({ plan, history, question }),
+      userPrompt: buildQuestionPrompt({
+        project: plan.project,
+        path,
+        history,
+        question,
+      }),
       schema: QUESTION_RESPONSE_SCHEMA,
       maxOutputTokens: 2048,
     });
@@ -123,6 +142,7 @@ export async function askQuestion(
       user_id: user.id,
       question,
       answer: answer.answer.trim(),
+      path_index: pathIndex,
       related_section:
         typeof answer.relatedSection === "string" &&
         answer.relatedSection !== "general"
@@ -130,7 +150,7 @@ export async function askQuestion(
           : null,
       suggested_follow_ups: followUps,
     })
-    .select("id, question, answer, related_section, suggested_follow_ups, created_at")
+    .select(COLUMNS)
     .single<QuestionRow>();
 
   if (error || !data) {

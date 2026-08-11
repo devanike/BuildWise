@@ -39,15 +39,22 @@ export function usePlanGeneration() {
     setError("");
     setFieldErrors({});
 
-    let response: Response;
-
-    try {
-      response = await fetch("/api/plans/generate", {
+    const send = () =>
+      fetch("/api/plans/generate", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(draft),
         signal: controller.signal,
       });
+
+    let response: Response;
+
+    try {
+      response = await send();
+
+      if (response.status === 401) {
+        response = await send();
+      }
     } catch {
       if (controller.signal.aborted) return;
       setStatus("error");

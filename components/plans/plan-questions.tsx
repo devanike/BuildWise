@@ -32,9 +32,13 @@ const SECTION_LABELS: Record<string, string> = {
 export function PlanQuestions({
   planId,
   initialQuestions,
+  pathIndex,
+  pathName,
 }: {
   planId: string;
   initialQuestions: PlanQuestion[];
+  pathIndex: number;
+  pathName?: string;
 }) {
   const [questions, setQuestions] = useState(initialQuestions);
   const [draft, setDraft] = useState("");
@@ -42,9 +46,13 @@ export function PlanQuestions({
   const [isAsking, setIsAsking] = useState(false);
   const [error, setError] = useState("");
 
+  const visible = questions.filter(
+    (entry) => (entry.pathIndex ?? 0) === pathIndex,
+  );
+
   const suggestions =
-    questions.length > 0
-      ? questions[questions.length - 1].suggestedFollowUps
+    visible.length > 0
+      ? visible[visible.length - 1].suggestedFollowUps
       : OPENING_QUESTIONS;
 
   async function ask(text: string) {
@@ -59,7 +67,7 @@ export function PlanQuestions({
       const response = await fetch(`/api/plans/${planId}/questions`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, pathIndex }),
       });
 
       const body = await response.json().catch(() => null);
@@ -97,19 +105,30 @@ export function PlanQuestions({
           Ask about this plan
         </h2>
         <p className="max-w-2xl text-body text-muted-foreground">
-          Anything here you would like explained further? Answers stay with this
-          plan, so you can come back to them.
+          {pathName ? (
+            <>
+              Answers are about{" "}
+              <span className="font-medium text-foreground">{pathName}</span>.
+              Switch approach above to ask about the other one. Everything you
+              ask stays with this plan.
+            </>
+          ) : (
+            <>
+              Anything here you would like explained further? Answers stay with
+              this plan, so you can come back to them.
+            </>
+          )}
         </p>
       </div>
 
-      {questions.length > 0 ? (
+      {visible.length > 0 ? (
         <AccordionPrimitive.Root
           type="multiple"
           value={open}
           onValueChange={setOpen}
           className="flex flex-col divide-y divide-border border-y border-border"
         >
-          {questions.map((entry) => (
+          {visible.map((entry) => (
             <AccordionPrimitive.Item key={entry.id} value={entry.id}>
               <AccordionPrimitive.Header>
                 <AccordionPrimitive.Trigger className="group flex w-full items-start gap-4 py-5 text-left transition-colors duration-200 hover:text-accent-text">
@@ -169,10 +188,19 @@ export function PlanQuestions({
             disabled={isAsking}
             maxLength={400}
             placeholder={
-              isAsking ? "Working on your answer..." : "Ask a question"
+              isAsking ? "Working on your answer" : "Ask a question"
             }
-            className="pr-14"
+            className={cn("pr-14", isAsking && "border-accent-line")}
           />
+
+          {isAsking ? (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 overflow-hidden rounded-input"
+            >
+              <span className="absolute inset-y-0 w-1/2 animate-shimmer bg-linear-to-r from-transparent via-accent/12 to-transparent [animation:shimmer_1.8s_ease-in-out_infinite]" />
+            </span>
+          ) : null}
           <button
             type="submit"
             disabled={isAsking || !draft.trim()}

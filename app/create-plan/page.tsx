@@ -14,8 +14,8 @@ export default async function CreatePlanPage() {
 
   return (
     <DashboardShell profile={profile} title="Create Backend Plan">
-      <div className="flex max-w-3xl flex-col gap-8">
-        <header>
+      <div className="flex flex-col gap-8">
+        <header className="max-w-3xl">
           <h2 className="text-h4 font-bold text-foreground md:text-h3">
             Describe your project
           </h2>
