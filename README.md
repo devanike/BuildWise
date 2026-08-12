@@ -112,8 +112,6 @@ npm run dev
 
 Apply the migrations in `supabase/migrations/` to your Supabase project in filename order.
 
-> **Note:** `supabase/` and `docs/` are excluded from version control, so a fresh clone has neither the migrations nor the project documentation. Both are needed to stand this up from scratch.
-
 ---
 
 ## Status
