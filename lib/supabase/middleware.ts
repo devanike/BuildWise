@@ -2,6 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "./env";
 
+const MAX_SESSION_DAYS = 14;
+
 const PROTECTED_ROUTES = [
   "/dashboard",
   "/create-plan",
@@ -46,6 +48,21 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  if (user && isSessionTooOld(user.last_sign_in_at)) {
+    await supabase.auth.signOut();
+
+    if (!matchesRoute(pathname, PROTECTED_ROUTES)) {
+      return supabaseResponse;
+    }
+
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/sign-in";
+    redirectUrl.search = "";
+    redirectUrl.searchParams.set("redirectTo", pathname);
+
+    return copyCookies(supabaseResponse, NextResponse.redirect(redirectUrl));
+  }
+
   if (!user && matchesRoute(pathname, PROTECTED_ROUTES)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/sign-in";
@@ -61,6 +78,15 @@ export async function updateSession(request: NextRequest) {
   }
 
   return supabaseResponse;
+}
+
+function isSessionTooOld(lastSignInAt: string | undefined): boolean {
+  if (!lastSignInAt) return false;
+
+  const signedInAt = new Date(lastSignInAt).getTime();
+  if (Number.isNaN(signedInAt)) return false;
+
+  return Date.now() - signedInAt > MAX_SESSION_DAYS * 24 * 60 * 60 * 1000;
 }
 
 function copyCookies(from: NextResponse, to: NextResponse) {
