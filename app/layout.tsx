@@ -1,13 +1,32 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "BuildWise AI | Plan your backend with confidence",
     template: "%s | BuildWise AI",
   },
   description:
     "BuildWise AI is a backend mentor for beginner developers. Turn your project idea into a structured backend plan and understand the reasoning behind every recommendation.",
+  openGraph: {
+    title: "BuildWise AI | Plan your backend with confidence",
+    description:
+      "Turn your project idea into a structured backend plan, and understand the reasoning behind every recommendation.",
+    siteName: "BuildWise AI",
+    type: "website",
+    locale: "en_GB",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BuildWise AI | Plan your backend with confidence",
+    description:
+      "Turn your project idea into a structured backend plan, and understand the reasoning behind every recommendation.",
+  },
 };
 
 const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("buildwise-theme");var r=document.documentElement;r.classList.remove("light","neutral");if(t==="light"||t==="neutral")r.classList.add(t);}catch(e){}})();`;
